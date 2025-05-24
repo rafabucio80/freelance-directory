@@ -2,7 +2,7 @@
 <html>
 <head>
   <base target="_top">
-  <?!= HtmlService.createHtmlOutputFromFile('frontend/styles').getContent(); ?>
+  <?!= HtmlService.createHtmlOutputFromFile('styles').getContent(); ?>
 </head>
 <body>
   <!-- Barra de contacto -->
@@ -12,8 +12,13 @@
     <a href="https://wa.me/1234567890" target="_blank">💬 WhatsApp</a>
   </div>
 
-  <!-- Lista de freelancers -->
+  <!-- Contenedor de tarjetas (con botón de CV) -->
   <div id="freelancers-container"></div>
+
+  <!-- Modal (oculto inicialmente) -->
+  <div id="freelancer-modal" class="modal">
+    <div id="modal-content" class="modal-content"></div>
+  </div>
 
   <!-- Footer con redes -->
   <div class="social-footer">
@@ -22,6 +27,6 @@
     <a href="https://instagram.com/tucuenta" target="_blank">Instagram</a>
   </div>
 
-  <?!= HtmlService.createHtmlOutputFromFile('frontend/script').getContent(); ?>
+  <?!= HtmlService.createHtmlOutputFromFile('script').getContent(); ?>
 </body>
 </html>
