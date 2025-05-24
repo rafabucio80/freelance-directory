@@ -21,4 +21,54 @@
       `;
     });
   }
+
+  function openModal(freelancer) {
+  const modal = document.getElementById('freelancer-modal');
+  const modalContent = document.getElementById('modal-content');
+  
+  modalContent.innerHTML = `
+    <div class="modal-header">
+      <img src="${freelancer.foto}" class="modal-profile-img">
+      <h2>${freelancer.nombre}</h2>
+      <span class="close-modal" onclick="closeModal()">&times;</span>
+    </div>
+    <div class="modal-body">
+      <p><strong>País:</strong> ${freelancer.pais}</p>
+      <p><strong>Habilidades:</strong> ${freelancer.habilidades.join(', ')}</p>
+      <p><strong>Lenguajes/Frameworks:</strong> ${freelancer.lenguajes.join(', ')}</p>
+      <p><strong>GitHub:</strong> <a href="${freelancer.github}" target="_blank">${freelancer.github || 'No disponible'}</a></p>
+      <p><strong>Portafolio:</strong> <a href="${freelancer.portafolio}" target="_blank">${freelancer.portafolio || 'No disponible'}</a></p>
+      <a href="${freelancer.cv}" target="_blank" class="cv-button-modal">Descargar CV</a>
+    </div>
+  `;
+  modal.style.display = 'block';
+}
+
+function closeModal() {
+  document.getElementById('freelancer-modal').style.display = 'none';
+}
+
+// Asigna el evento de clic a las imágenes
+document.addEventListener('DOMContentLoaded', () => {
+  google.script.run.withSuccessHandler((data) => {
+    const container = document.getElementById('freelancers-container');
+    container.innerHTML = '';
+    
+    // Renderizado condicional
+  data.forEach(freelancer => {
+  const card = document.createElement('div');
+  card.className = 'freelancer-card';
+  card.innerHTML = `
+    <img src="${freelancer.foto}" class="profile-img">
+    <h3>${freelancer.nombre}</h3>
+    <p>${freelancer.pais}</p>
+    <button class="view-more-btn ${!freelancer.premium ? 'disabled' : ''}" 
+            onclick="${freelancer.premium ? `openModal(${JSON.stringify(freelancer)})` : 'return false'}">
+      ${freelancer.premium ? 'Ver más' : 'No disponible'}
+    </button>
+  `;
+  container.appendChild(card);
+});
+  }).getFreelancers();
+});
 </script>
