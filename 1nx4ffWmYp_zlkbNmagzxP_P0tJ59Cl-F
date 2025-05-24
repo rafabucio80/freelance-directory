@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+        <meta name="description" content="" />
+        <meta name="author" content="" />
+        <title>Mi Bazar punto com</title>
+        <!-- Favicon-->
+        <link rel="icon" type="image/x-icon" href="assets/logo1.jpeg" />
+        <!-- Bootstrap icons-->
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css" rel="stylesheet" />
+        <!-- Core theme CSS (includes Bootstrap)-->
+        <?!= include('Stylesheet'); ?>
+    </head>
+    <body>
+        <!-- Navigation-->
+        <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top">
+            <div class="container px-4 px-lg-5">
+                <a class="navbar-brand" href="#">Mi Bazar punto com</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-4">
+                        <li class="nav-item"><a class="nav-link active" aria-current="page" href="#!">Home</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#!">Acerca de mi</a></li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Categorias</a>
+                            <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                            <li><a class="dropdown-item" href="https://n-4krweakaeehrdymgqodqgsqvg6kver5hdgbm77i-0lu-script.googleusercontent.com/plantilla1.html?categoria=Abarrotes">Abarrotes</a></li>
+                            <li><a class="dropdown-item" href="plantilla1.html?categoria=Limpieza">Limpieza</a></li>
+                            <li><a class="dropdown-item" href="plantilla1.html?categoria=HigienePersonal">Higiene personal</a></li>
+                            <li><a class="dropdown-item" href="plantilla1.html?categoria=Mascotas">Mascotas</a></li>
+                            <li><a class="dropdown-item" href="plantilla1.html?categoria=Desechables">Desechables</a></li>
+                            <li><a class="dropdown-item" href="plantilla1.html?categoria=Bebidas">Bebidas</a></li>
+                            <li><a class="dropdown-item" href="plantilla1.html?categoria=BotanasDulces">Botanas y dulces</a></li>
+                        </ul>
+
+                        </li>
+                    </ul>
+                    <!-- Botón del carrito y contador de artículos -->
+              <div class="dropdown">
+              <button class="btn btn-outline-dark dropdown-toggle" type="button" id="dropdownCartButton" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="bi-cart-fill me-1"></i>
+                
+                <span id="cart-count" class="badge bg-dark text-white ms-1 rounded-pill">0</span>
+              </button>
+              <!-- Contenido del carrito -->
+              <ul class="dropdown-menu dropdown-menu-lg-start" aria-labelledby="dropdownCartButton" id="carritoDetalle">
+                <!-- Aquí se insertarán los productos del carrito -->
+                <!-- Los elementos del carrito se agregarán aquí dinámicamente -->
+              </ul>
+            </div>
+
+
+            </div>
+        </nav>
+        <!-- Header-->
+        <header class="bg-dark py-5">
+            <div class="container px-4 px-lg-5 my-5">
+                <div class="text-center text-white">
+                    <h1 class="display-4 fw-bolder">Dedicate a lo tuyo</h1>
+                    <p class="lead fw-normal text-white-50 mb-0">mientras hago tus compras</p>
+                </div>
+            </div>
+        </header>
+        <!-- Section-->
+        <section class="py-5">
+            <div class="container px-4 px-lg-5 mt-5">
+                <div class="row gx-4 gx-lg-5 row-cols-2 row-cols-md-3 row-cols-xl-4 justify-content-center" id="catalog">
+                    
+                </div>
+            </div>
+        </section>
+        <!-- Footer-->
+        <footer class="py-5 bg-dark">
+            <div class="container"><p class="m-0 text-center text-white">Copyright &copy; Mi Bazar punto com 2025</p></div>
+        </footer>
+        <script>
+          var carrito = []; // Almacena los productos agregados al carrito
+          window.addEventListener('load', function() {
+          google.script.run.withSuccessHandler(showProducts).getProducts();
+        });
+
+          function showProducts(products) {
+          var catalog = document.getElementById('catalog'); // Asegúrate de que este ID exista en tu HTML
+          products.forEach(function(product, index) {
+            var html = '<div class="col mb-5">' +
+                          '<div class="card h-100">' +
+                            // Si el producto está en venta, muestra la etiqueta de venta
+                            (product.onSale ? '<div class="badge bg-dark text-white position-absolute" style="top: 0.5rem; right: 0.5rem">Sale</div>' : '') +
+                            '<img class="card-img-top" src="' + product.image + '" alt="' + product.title + '" />' +
+                            '<div class="card-body p-4">' +
+                              '<div class="text-center">' +
+                                '<h5 class="fw-bolder">' + product.title + '</h5>' +
+                                // Si el producto tiene precio rebajado, muestra el precio original tachado
+                                (product.originalPrice ? '<span class="text-muted text-decoration-line-through">$' + product.originalPrice + '</span>' : '') +
+                                formatPrice(product.price) +
+                              '</div>' +
+                            '</div>' +
+                            '<div class="card-footer p-4 pt-0 border-top-0 bg-transparent">' +
+                              '<div class="text-center">' +
+                                // Botón para agregar al carrito, que se muestra solo si la cantidad es 0
+                                '<button id="addButton-' + index + '" class="btn btn-outline-dark mt-auto" onclick="addToCart(' + index + ', \'' + product.title + '\', ' + product.price + ', \'' + product.image + '\')"><i class="bi-cart-fill me-1"></i>Agregar</button>' +
+                                // Input para la cantidad, que se muestra solo si la cantidad es mayor que 0
+                                '<input type="number" id="cantidad-' + index + '" class="form-control mt-auto" value="0" onchange="updateQuantity(' + index + '); toggleButtonInput(' + index + ')" style="display: none;">' +
+                              '</div>' +
+                            '</div>' +
+                          '</div>' +
+                        '</div>';
+            catalog.insertAdjacentHTML('beforeend', html);
+            toggleButtonInput(index); // Llama a esta función para establecer la visibilidad inicial del botón y el input
+          });
+        }
+
+        function toggleButtonInput(index) {
+          var quantityInput = document.getElementById('cantidad-' + index);
+          var addButton = document.getElementById('addButton-' + index);
+          var quantity = parseInt(quantityInput.value);
+
+          if (quantity > 0) {
+            addButton.style.display = 'none';
+            quantityInput.style.display = 'block';
+          } else {
+            addButton.style.display = 'block';
+            quantityInput.style.display = 'none';
+          }
+        }
+          function formatPrice(price) {
+          return '$' + parseFloat(price).toFixed(2);
+        }
+
+        function recortarTexto(nombreCompleto, longitudMaxima) {
+          if (nombreCompleto.length > longitudMaxima) {
+            return nombreCompleto.slice(0, longitudMaxima) + '...';
+          } else {
+            return nombreCompleto;
+          }
+        }
+
+        function addToCart(productId, title, price, image) {
+          var quantityInput = document.getElementById('cantidad-' + productId);
+          var quantity = parseInt(quantityInput.value) || 1; // Si no hay cantidad definida, establece 1
+          
+          // Aquí utilizamos la función recortarTexto para limitar el título
+          var titleCorto = recortarTexto(title, 15); // Ajusta el número 15 a la longitud que prefieras
+
+          var existingProduct = carrito.find(p => p.id === productId);
+          if (existingProduct) {
+            existingProduct.quantity += quantity;
+          } else {
+            carrito.push({ id: productId, title: titleCorto, price: price, quantity: quantity, image: image });
+          }
+          actualizarContadorCarrito();
+          // Asegúrate de que el input de cantidad y el botón se actualicen correctamente
+          toggleButtonInput(productId);
+          mostrarCarrito();
+        }
+
+        function updateQuantity(productId) {
+        var quantityInput = document.getElementById('cantidad-' + productId);
+        var quantity = parseInt(quantityInput.value);
+        var productIndex = carrito.findIndex(p => p.id === productId);
+
+        if (quantity > 0) {
+          if (productIndex !== -1) {
+            carrito[productIndex].quantity = quantity;
+          }
+        } else {
+          if (productIndex !== -1) {
+            carrito.splice(productIndex, 1);
+          }
+          // Restablece el botón de agregar al carrito si la cantidad es 0
+          toggleButtonInput(productId);
+        }
+
+        mostrarCarrito();
+      }
+
+          function mostrarCarrito() {
+          var contenedorCarrito = document.getElementById('carritoDetalle');
+          contenedorCarrito.innerHTML = ''; // Limpia el contenido anterior del carrito
+
+          carrito.forEach(function(product) {
+            var item = document.createElement('li');
+            item.className = 'dropdown-item';
+            item.innerHTML = '<img src="' + product.image + '" class="img-fluid" style="width: 50px; height: auto;">' +
+                            '<span>' + product.title + ' => ' + formatPrice(product.price) + ' x ' + product.quantity + '</span>';
+            contenedorCarrito.appendChild(item);
+          });
+
+          // Actualiza el contador del carrito
+          actualizarContadorCarrito();
+        }
+      
+      function actualizarContadorCarrito() {
+      var itemCount = carrito.reduce(function (acumulador, producto) {
+        return acumulador + producto.quantity;
+      }, 0);
+      document.getElementById('cart-count').textContent = itemCount;
+    }
+
+
+        </script>
+        <!-- Bootstrap core JS-->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+        <!-- Core theme JS-->
+        <script src="js/scripts.js"></script>
+    </body>
+</html>
+
+
