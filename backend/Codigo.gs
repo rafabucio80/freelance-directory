@@ -5,7 +5,7 @@ function doGet() {
 }
 
 function getFreelancers() {
-  const sheet = SpreadsheetApp.getActive().getSheetByName("Freelancers");
+  const sheet = SpreadsheetApp.openById(EL_ID_DE_TU_HOJA).getSheetByName("Freelancers");
   const data = sheet.getDataRange().getValues();
   const hoy = new Date();
   
