@@ -12,8 +12,22 @@
     <a href="https://wa.me/1234567890" target="_blank">💬 WhatsApp</a>
   </div>
 
+  <div class="search-filters">
+    <input type="text" id="search-input" placeholder="Buscar por nombre, país...">
+    <select id="country-filter">
+      <option value="">Todos los países</option>
+    </select>
+    <select id="skills-filter">
+      <option value="">Todas las habilidades</option>
+    </select>
+    <button id="filter-btn">Filtrar</button>
+  </div>
+
   <!-- Contenedor de tarjetas (con botón de CV) -->
   <div id="freelancers-container"></div>
+
+  <!-- Paginación (aquí va el nuevo div) -->
+  <div id="pagination" class="pagination"></div>
 
   <!-- Modal (oculto inicialmente) -->
   <div id="freelancer-modal" class="modal">
