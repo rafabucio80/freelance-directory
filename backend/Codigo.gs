@@ -6,7 +6,7 @@ function doGet() {
 
 function getFreelancers() {
   try {
-    const sheet = SpreadsheetApp.openById("1g2qyAjW9NLlaBFMj7YtnTn600ssLQlXkKH1tXsV--Y4").getSheetByName("Freelancers");
+    const sheet = SpreadsheetApp.openById("SHEET_ID").getSheetByName("Freelancers");
     const data = sheet.getDataRange().getValues();
     
     if (data.length <= 1) return []; // Si solo hay encabezados
