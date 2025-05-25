@@ -153,4 +153,102 @@
   border-radius: 12px;
   font-size: 0.8em;
 }
+/* Filtros */
+.search-filters {
+  margin: 20px 0;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.search-filters input, .search-filters select {
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+#filter-btn {
+  background: #0073e6;
+  color: white;
+  border: none;
+  padding: 0 15px;
+  cursor: pointer;
+}
+
+/* Paginación */
+.pagination {
+  display: flex;
+  justify-content: center;
+  margin: 20px 0;
+  gap: 5px;
+}
+
+.page-btn {
+  padding: 5px 10px;
+  border: 1px solid #ddd;
+  background: white;
+  cursor: pointer;
+}
+
+.page-btn.active {
+  background: #0073e6;
+  color: white;
+  border-color: #0073e6;
+}
+/* Centrar el cuerpo principal */
+body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;  /* Centra horizontalmente */
+  min-height: 100vh;
+  margin: 0;
+  padding: 20px;
+  font-family: Arial, sans-serif;
+  background-color: #f5f5f5;  /* Opcional: fondo claro */
+}
+
+/* Contenedor principal */
+#freelancers-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;  /* Centra las tarjetas */
+  gap: 20px;
+  max-width: 1200px;  /* Ancho máximo para no expandirse demasiado */
+  width: 100%;
+}
+
+/* Contenedor de filtros */
+.search-filters {
+  width: 100%;
+  max-width: 1200px;
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+@media (max-width: 600px) {
+  body {
+    padding: 10px;
+  }
+  .search-filters {
+    flex-direction: column;
+  }
+}
+.skills {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;  /* Centra los badges horizontalmente */
+  gap: 8px;                /* Espacio entre badges */
+  margin: 10px 0;          /* Margen arriba/abajo */
+}
+
+.badge {
+  background: #0073e6;
+  color: white;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 0.8em;
+  text-align: center;      /* Centra el texto dentro del badge */
+}
 </style>
