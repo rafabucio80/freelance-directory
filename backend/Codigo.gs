@@ -5,19 +5,24 @@ function doGet() {
 }
 
 function getFreelancers() {
-  const sheet = SpreadsheetApp.openById(EL_ID_DE_TU_HOJA).getSheetByName("Freelancers");
-  const data = sheet.getDataRange().getValues();
-  const hoy = new Date();
-  
-  return data.slice(1).map(row => ({
-    id: row[0],
-    nombre: row[4],
-    foto: row[1],
-    pais: row[2],
-    habilidades: row[11].split(","),
-    github: row[7],
-    cv: row[15],
-    premium: row[16] === "Sí", // Columna 16: "Sí" si está al día
-    fechaVencimiento: new Date(row[17]) // Columna 17: Fecha de vencimiento (ej: "31/12/2024")
-  }));
+  try {
+    const sheet = SpreadsheetApp.openById("1g2qyAjW9NLlaBFMj7YtnTn600ssLQlXkKH1tXsV--Y4").getSheetByName("Freelancers");
+    const data = sheet.getDataRange().getValues();
+    
+    if (data.length <= 1) return []; // Si solo hay encabezados
+    
+    return data.slice(1).map(row => ({
+      id: row[0],
+      nombre: row[4],
+      foto: row[1],
+      pais: row[2],
+      titulo: row[9],
+      skills: row[11] ? row[11].split(",") : [],
+      premium: row[16] === "SI", // Asegúrate de que la columna 16 sea "Sí"/"No"
+      cvUrl: row[15] || "#"
+    }));
+  } catch (e) {
+    console.error("Error en getFreelancers:", e);
+    return [];
+  }
 }
