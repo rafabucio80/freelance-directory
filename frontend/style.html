@@ -1,13 +1,17 @@
 <style>
+  /* Profile Image */
   .profile-img {
-    width: 150px;       /* Ancho fijo */
-    height: 150px;      /* Alto fijo */
-    object-fit: cover;  /* Recorta la imagen para que encaje */
-    border-radius: 50%;  /* Opcional: forma circular */
-    border: 3px solid #0073e6; /* Opcional: borde azul */
-    display: block;     /* Centra la imagen */
-    margin: 0 auto;     /* Centra la imagen */
+    width: 150px;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 3px solid #0073e6;
+    display: block;
+    margin: 0 auto;
+    cursor: default; /* Desactiva el clic en la foto */
   }
+
+  /* Freelancer Card */
   .freelancer-card {
     border: 1px solid #ddd;
     border-radius: 8px;
@@ -15,20 +19,27 @@
     margin: 10px;
     width: 250px;
     display: inline-block;
-    text-align: center; /* Alinea todo el contenido al centro */
+    text-align: center;
   }
+
+  /* Premium Card Specifics */
   .premium {
     border: 2px solid #FFD700;
   }
+
+  /* Contact Bar */
   .contact-bar {
     background: #333;
     padding: 10px;
     text-align: center;
   }
+
   .contact-bar a {
     color: white;
     margin: 0 10px;
   }
+
+  /* CV Button - General */
   .cv-button {
     background: #4CAF50;
     color: white;
@@ -38,95 +49,108 @@
     margin-top: 10px;
     text-align: center;
   }
+
+  /* Modal Styles */
   .modal {
-  display: none;
-  position: fixed;
-  z-index: 100;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0,0,0,0.8);
-}
+    display: none;
+    position: fixed;
+    z-index: 100;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.8);
+  }
 
-.modal-content {
-  background: #fff;
-  margin: 5% auto;
-  padding: 20px;
-  width: 60%;
-  max-width: 600px;
-  border-radius: 8px;
-  position: relative;
-}
+  #freelancer-modal { /* Specific ID for the freelancer modal if needed */
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+  }
 
-.modal-profile-img {
-  width: 100px;
-  height: 100px;
-  border-radius: 50%;
-  object-fit: cover;
-  display: block;
-  margin: 0 auto 15px;
-}
+  .modal-content {
+    background: #fff;
+    margin: 5% auto;
+    padding: 20px;
+    width: 60%;
+    max-width: 600px;
+    border-radius: 8px;
+    position: relative;
+  }
 
-.close-modal {
-  position: absolute;
-  top: 10px;
-  right: 20px;
-  font-size: 28px;
-  cursor: pointer;
-}
+  .modal-profile-img {
+    width: 100px; /* Tamaño más pequeño para el modal */
+    height: 100px; /* Tamaño más pequeño para el modal */
+    border-radius: 50%;
+    object-fit: cover;
+    display: block;
+    margin: 0 auto 15px;
+  }
 
-.cv-button-modal {
-  background: #4CAF50;
-  color: white;
-  padding: 10px 15px;
-  border-radius: 4px;
-  text-align: center;
-  display: inline-block;
-  margin-top: 15px;
-}
-.cv-button {
-  background: #4CAF50;
-  color: white;
-  padding: 8px 12px;
-  margin-top: 10px;
-}
+  .close-modal {
+    position: absolute;
+    top: 10px;
+    right: 20px;
+    font-size: 28px;
+    cursor: pointer;
+  }
 
-/* Botón en modal */
-.cv-button-modal {
-  background: #0073e6;
-  padding: 10px 15px;
-}
-.view-more-btn {
-  background: #0073e6;
-  color: white;
-  border: none;
-  padding: 8px 15px;
-  margin-top: 10px;
-  border-radius: 4px;
-  cursor: pointer;
-}
+  /* CV Button - Inside Modal */
+  .cv-button-modal {
+    background: #0073e6; /* Color diferente para el botón del modal */
+    color: white;
+    padding: 10px 15px;
+    border-radius: 4px;
+    text-align: center;
+    display: inline-block;
+    margin-top: 15px;
+  }
 
-/* Desactiva el clic en la foto */
-.profile-img {
-  cursor: default; /* Quita la "manita" */
-}
-/* Botón activo */
-.view-more-btn {
-  background: #0073e6;
-  color: white;
-  cursor: pointer;
-}
+  /* View More Button */
+  .view-more-btn {
+    background: #0073e6;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    margin-top: 10px;
+    border-radius: 4px;
+    cursor: pointer;
+  }
 
-/* Botón desactivado */
-.view-more-btn.disabled {
-  background: #ccc;
+  .view-more-btn.disabled {
+    background: #ccc !important; /* !important para asegurar la anulación */
+    color: #666;
+    cursor: not-allowed;
+    opacity: 0.7;
+  }
+
+  /* Conditional CV button in modal (for premium) */
+  .modal-content .cv-button {
+    display: ${freelancer.premium ? 'block' : 'none'};
+  }
+  .freelancer-title {
   color: #666;
-  cursor: not-allowed;
+  font-style: italic;
+  margin: 5px 0;
+  font-size: 0.9em;
 }
 
-/* Modal solo para premium */
-.modal-content .cv-button {
-  display: ${freelancer.premium ? 'block' : 'none'};
+.skills {
+  margin: 10px 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.badge {
+  background: #0073e6;
+  color: white;
+  padding: 3px 8px;
+  border-radius: 12px;
+  font-size: 0.8em;
 }
 </style>
