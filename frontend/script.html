@@ -1,43 +1,104 @@
 <script>
-  document.addEventListener('DOMContentLoaded', () => {
-    google.script.run.withSuccessHandler(showFreelancers).getFreelancers();
+// Variables globales
+let allFreelancers = [];
+let currentPage = 1;
+const freelancersPerPage = 12;
+let timeout;
+
+function initFilters(data) {
+  // Llenar filtros de países y habilidades
+  const countries = [...new Set(data.map(f => f.pais))];
+  const skills = [...new Set(data.flatMap(f => f.skills))];
+  
+  const countryFilter = document.getElementById('country-filter');
+  const skillsFilter = document.getElementById('skills-filter');
+  
+  countries.forEach(country => {
+    countryFilter.innerHTML += `<option value="${country}">${country}</option>`;
   });
+  
+  skills.forEach(skill => {
+    skillsFilter.innerHTML += `<option value="${skill}">${skill}</option>`;
+  });
+}
 
-  function showFreelancers(data) {
-    const container = document.getElementById('freelancers-container');
-    data.forEach(freelancer => {
-      container.innerHTML += `
-        <div class="freelancer-card ${freelancer.premium ? 'premium' : ''}">
-          <img src="${freelancer.foto}" class="profile-img">
-          <h3>${freelancer.nombre} ${freelancer.premium ? '⭐' : ''}</h3>
-          <p>${freelancer.pais}</p>
-          <div class="skills">
-            ${[...freelancer.habilidades, ...freelancer.lenguajes].map(skill => `
-              <span class="badge">${skill.trim()}</span>
-            `).join('')}
-          </div>
-          <a href="${freelancer.cv}" target="_blank" class="cv-button">Descargar CV</a>
+function filterFreelancers() {
+  const searchTerm = document.getElementById('search-input').value.toLowerCase();
+  const country = document.getElementById('country-filter').value;
+  const skill = document.getElementById('skills-filter').value;
+  
+  const filtered = allFreelancers.filter(f => {
+    const matchesSearch = f.nombre.toLowerCase().includes(searchTerm) || 
+                         f.pais.toLowerCase().includes(searchTerm);
+    const matchesCountry = country ? f.pais === country : true;
+    const matchesSkill = skill ? f.skills.includes(skill) : true;
+    
+    return matchesSearch && matchesCountry && matchesSkill;
+  });
+  
+  renderFreelancers(filtered);
+  renderPagination(filtered.length);
+}
+
+function renderFreelancers(data) {
+  const container = document.getElementById('freelancers-container');
+  container.innerHTML = '';
+  
+  const start = (currentPage - 1) * freelancersPerPage;
+  const paginatedData = data.slice(start, start + freelancersPerPage);
+  
+  paginatedData.forEach(freelancer => {
+    container.innerHTML += `
+      <div class="freelancer-card">
+        <img src="${freelancer.foto}" class="profile-img">
+        <h3>${freelancer.nombre}</h3>
+        <p class="country">${freelancer.pais}</p>
+        <div class="skills">
+          ${freelancer.skills.map(skill => `<span class="badge">${skill}</span>`).join('')}
         </div>
-      `;
-    });
-  }
+        <button class="view-more-btn ${freelancer.premium ? '' : 'disabled'}" 
+                onclick="${freelancer.premium ? `openModal(${JSON.stringify(freelancer).replace(/"/g, '&quot;')})` : 'return false'}">
+          ${freelancer.premium ? 'Ver más' : 'No disponible'}
+        </button>
+      </div>
+    `;
+  });
+}
 
-  function openModal(freelancerData) {
+function renderPagination(totalItems) {
+  const totalPages = Math.ceil(totalItems / freelancersPerPage);
+  const pagination = document.getElementById('pagination');
+  pagination.innerHTML = '';
+  
+  for (let i = 1; i <= totalPages; i++) {
+    pagination.innerHTML += `
+      <button class="page-btn ${i === currentPage ? 'active' : ''}" onclick="changePage(${i})">
+        ${i}
+      </button>
+    `;
+  }
+}
+
+function changePage(page) {
+  currentPage = page;
+  filterFreelancers();
+}
+
+function openModal(freelancer) {
+  console.log("Abriendo modal para:", freelancer); // Debug
   const modal = document.getElementById('freelancer-modal');
   const modalContent = document.getElementById('modal-content');
   
   modalContent.innerHTML = `
     <div class="modal-header">
+      <h2>${freelancer.nombre}</h2>
       <span class="close-modal" onclick="closeModal()">&times;</span>
-      <h2>${freelancerData.nombre}</h2>
     </div>
     <div class="modal-body">
-      <img src="${freelancerData.foto}" class="modal-profile-img">
-      <p><strong>País:</strong> ${freelancerData.pais}</p>
-      <div class="skills">
-        ${freelancerData.skills.map(skill => `<span class="badge">${skill}</span>`).join('')}
-      </div>
-      ${freelancerData.premium ? `<a href="${freelancerData.cvUrl}" target="_blank" class="cv-button">Descargar CV</a>` : ''}
+      <img src="${freelancer.foto}" class="modal-profile-img">
+      <p><strong>País:</strong> ${freelancer.pais}</p>
+      <p><strong>Habilidades:</strong> ${freelancer.skills.join(', ')}</p>
+      ${freelancer.premium ? `<a href="${freelancer.cvUrl}" class="cv-button" target="_blank">Descargar CV</a>` : ''}
     </div>
   `;
   modal.style.display = 'block';
@@ -47,27 +108,20 @@ function closeModal() {
   document.getElementById('freelancer-modal').style.display = 'none';
 }
 
+
 document.addEventListener('DOMContentLoaded', () => {
-  google.script.run.withSuccessHandler((data) => {
-    const container = document.getElementById('freelancers-container');
-    container.innerHTML = '';
+  google.script.run.withSuccessHandler(data => {
+    allFreelancers = data;
+    initFilters(data);
+    filterFreelancers();
     
-    data.forEach(freelancer => {
-      container.innerHTML += `
-        <div class="freelancer-card">
-          <img src="${freelancer.foto}" class="profile-img">
-          <h3>${freelancer.nombre}</h3>
-          <p class="freelancer-title">${freelancer.titulo || 'Sin título especificado'}</p>
-          <div class="skills">
-            ${freelancer.skills.map(skill => `<span class="badge">${skill.trim()}</span>`).join('')}
-          </div>
-          <button class="view-more-btn ${freelancer.premium ? '' : 'disabled'}" 
-                  onclick="${freelancer.premium ? `openModal(${JSON.stringify(freelancer).replace(/"/g, '&quot;')})` : 'return false'}">
-            ${freelancer.premium ? 'Ver más' : 'No disponible'}
-          </button>
-        </div>
-      `;
+    // Configuración de event listeners
+    document.getElementById('search-input').addEventListener('input', () => {
+      clearTimeout(timeout);
+      timeout = setTimeout(filterFreelancers, 300);
     });
+    
+    document.getElementById('filter-btn').addEventListener('click', filterFreelancers);
   }).getFreelancers();
 });
 </script>
