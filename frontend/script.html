@@ -2,8 +2,11 @@
 // Variables globales
 let allFreelancers = [];
 let currentPage = 1;
+const isAdmin = true;
 const freelancersPerPage = 12;
 let timeout;
+let showBlacklist = false;
+let blacklistCount = 0;
 
 function initFilters(data) {
   // Llenar filtros de países y habilidades
@@ -13,6 +16,10 @@ function initFilters(data) {
   const countryFilter = document.getElementById('country-filter');
   const skillsFilter = document.getElementById('skills-filter');
   
+  // Limpiar selects primero
+  countryFilter.innerHTML = '<option value="">Todos los países</option>';
+  skillsFilter.innerHTML = '<option value="">Todas las habilidades</option>';
+  
   countries.forEach(country => {
     countryFilter.innerHTML += `<option value="${country}">${country}</option>`;
   });
@@ -20,6 +27,21 @@ function initFilters(data) {
   skills.forEach(skill => {
     skillsFilter.innerHTML += `<option value="${skill}">${skill}</option>`;
   });
+  
+  // Actualizar contador de lista negra
+  blacklistCount = data.filter(f => f.blacklisted).length;
+  updateBlacklistCounter();
+}
+function updateBlacklistCounter() {
+  const counterElement = document.getElementById('blacklistCounter');
+  if (counterElement) {
+    counterElement.textContent = blacklistCount;
+  }
+  const btn = document.getElementById('toggleBlacklistBtn');
+  if (btn) {
+    btn.classList.toggle('active', showBlacklist);
+    btn.title = `${blacklistCount} perfiles en lista negra`;
+  }
 }
 
 function filterFreelancers() {
@@ -27,7 +49,17 @@ function filterFreelancers() {
   const country = document.getElementById('country-filter').value;
   const skill = document.getElementById('skills-filter').value;
   
-  const filtered = allFreelancers.filter(f => {
+  // Primero filtramos por lista negra si está activo
+  let filtered = allFreelancers.filter(f => {
+    if (showBlacklist) {
+      return f.blacklisted;
+    } else {
+      return !f.blacklisted;
+    }
+  });
+  
+  // Luego aplicamos los otros filtros
+  filtered = filtered.filter(f => {
     const matchesSearch = f.nombre.toLowerCase().includes(searchTerm) || 
                          f.pais.toLowerCase().includes(searchTerm);
     const matchesCountry = country ? f.pais === country : true;
@@ -40,6 +72,12 @@ function filterFreelancers() {
   renderPagination(filtered.length);
 }
 
+function toggleBlacklistFilter() {
+  showBlacklist = !showBlacklist;
+  updateBlacklistCounter();
+  filterFreelancers();
+}
+
 function renderFreelancers(data) {
   const container = document.getElementById('freelancers-container');
   container.innerHTML = '';
@@ -47,18 +85,28 @@ function renderFreelancers(data) {
   const start = (currentPage - 1) * freelancersPerPage;
   const paginatedData = data.slice(start, start + freelancersPerPage);
   
+  const countryFlags = {
+    'Argentina': '🇦🇷', 
+    'México': '🇲🇽',
+    'España': '🇪🇸',
+    'Colombia': '🇨🇴'
+  };
+
   paginatedData.forEach(freelancer => {
     container.innerHTML += `
-      <div class="freelancer-card">
+      <div class="freelancer-card ${freelancer.blacklisted ? 'blacklisted-card' : ''}">
+        ${freelancer.blacklisted ? '<i class="fas fa-ban blacklist-icon" title="En lista negra"></i>' : ''}
         <img src="${freelancer.foto}" class="profile-img">
         <h3>${freelancer.nombre}</h3>
-        <p class="country">${freelancer.pais}</p>
+        <p class="country">
+          ${countryFlags[freelancer.pais] || '🌐'} ${freelancer.pais}
+        </p>
         <div class="skills">
           ${freelancer.skills.map(skill => `<span class="badge">${skill}</span>`).join('')}
         </div>
         <button class="view-more-btn ${freelancer.premium ? '' : 'disabled'}" 
                 onclick="${freelancer.premium ? `openModal(${JSON.stringify(freelancer).replace(/"/g, '&quot;')})` : 'return false'}">
-          ${freelancer.premium ? 'Ver más' : 'No disponible'}
+          ${freelancer.premium ? 'Ver más' : 'Premium requerido'}
         </button>
       </div>
     `;
@@ -85,43 +133,137 @@ function changePage(page) {
 }
 
 function openModal(freelancer) {
-  console.log("Abriendo modal para:", freelancer); // Debug
-  const modal = document.getElementById('freelancer-modal');
   const modalContent = document.getElementById('modal-content');
   
+  // Plantilla con contenedor scrollable
   modalContent.innerHTML = `
     <div class="modal-header">
-      <h2>${freelancer.nombre}</h2>
-      <span class="close-modal" onclick="closeModal()">&times;</span>
+      <h5 class="modal-title">${freelancer.nombre}</h5>
+      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
     </div>
-    <div class="modal-body">
-      <img src="${freelancer.foto}" class="modal-profile-img">
-      <p><strong>País:</strong> ${freelancer.pais}</p>
-      <p><strong>Habilidades:</strong> ${freelancer.skills.join(', ')}</p>
-      ${freelancer.premium ? `<a href="${freelancer.cvUrl}" class="cv-button" target="_blank">Descargar CV</a>` : ''}
+    <div class="modal-body row overflow-auto" style="max-height: 70vh;"> <!-- Ajuste clave -->
+      <!-- Columna izquierda -->
+      <div class="col-lg-5 text-center pe-3" style="border-right: 1px solid #eee; position: sticky; top: 0;">
+        <img src="${freelancer.foto}" class="img-fluid rounded-circle mb-3" style="width:150px;height:150px;object-fit:cover;">
+        ${freelancer.blacklisted ? 
+          '<div class="alert alert-danger py-1"><i class="fas fa-ban"></i> En lista negra</div>' : 
+          '<span class="badge bg-success">Verificado</span>'
+        }
+        <p class="mt-3"><i class="fas fa-map-marker-alt"></i> ${freelancer.pais}</p>
+        
+        ${isAdmin ? `
+          <button onclick="toggleBlacklist('${freelancer.id}')" class="btn btn-sm ${freelancer.blacklisted ? 'btn-success' : 'btn-warning'} mt-2 mb-3">
+            ${freelancer.blacklisted ? 'Quitar de lista negra' : 'Reportar'}
+          </button>
+        ` : ''}
+      </div>
+      
+      <!-- Columna derecha (scrollable) -->
+      <div class="col-lg-7 ps-3">
+        <div class="mb-4">
+          <h4>${freelancer.titulo}</h4>
+          <p class="text-muted">${freelancer.experiencia} años de experiencia</p>
+        </div>
+        
+        <div class="mb-4">
+          <h6>Habilidades principales:</h6>
+          <div class="d-flex flex-wrap gap-1 mb-3">
+            ${freelancer.skills.map(skill => `<span class="badge bg-primary">${skill}</span>`).join('')}
+          </div>
+        </div>
+        
+        <hr>
+        
+        <div class="mb-4">
+          <h6>Enlaces:</h6>
+          <div class="d-flex gap-2 mb-3">
+            ${freelancer.github ? `
+              <a href="${freelancer.github}" target="_blank" class="btn btn-outline-dark btn-sm">
+                <i class="fab fa-github"></i> GitHub
+              </a>
+            ` : ''}
+            ${freelancer.portafolio ? `
+              <a href="${freelancer.portafolio}" target="_blank" class="btn btn-outline-primary btn-sm">
+                <i class="fas fa-briefcase"></i> Portafolio
+              </a>
+            ` : ''}
+          </div>
+        </div>
+        
+        ${freelancer.premium ? `
+          <div class="mt-4 bg-light p-3 rounded" style="position: sticky; bottom: 0;"> <!-- Fija el botón -->
+            <h6>Comentarios:</h6>
+            <textarea id="freelancer-comment" class="form-control mb-2" rows="3" 
+                      placeholder="Escribe tu feedback..." style="resize: vertical;">${freelancer.comentarios || ''}</textarea>
+            <button onclick="saveComment('${freelancer.id}')" class="btn btn-primary w-100">
+              <i class="fas fa-save"></i> Guardar
+            </button>
+          </div>
+        ` : ''}
+      </div>
     </div>
   `;
-  modal.style.display = 'block';
+
+  // Configuración del modal
+  const modalElement = document.getElementById('freelancer-modal');
+  const modal = new bootstrap.Modal(modalElement, {
+    backdrop: false,
+    keyboard: true
+  });
+  
+  // Ajustar el modal y forzar scroll
+  modalElement.querySelector('.modal-dialog').classList.add('modal-lg', 'modal-dialog-centered');
+  modal.show();
+  
+  // Enfocar el textarea si existe
+  const textarea = document.getElementById('freelancer-comment');
+  if (textarea) textarea.focus();
+}
+
+
+// Función auxiliar para guardar comentarios (ejemplo)
+function saveComment(freelancerId) {
+  const comment = document.getElementById('freelancer-comment').value;
+  google.script.run.saveFreelancerComment(freelancerId, comment);
 }
 
 function closeModal() {
   document.getElementById('freelancer-modal').style.display = 'none';
 }
 
-
 document.addEventListener('DOMContentLoaded', () => {
-  google.script.run.withSuccessHandler(data => {
-    allFreelancers = data;
-    initFilters(data);
-    filterFreelancers();
-    
-    // Configuración de event listeners
-    document.getElementById('search-input').addEventListener('input', () => {
-      clearTimeout(timeout);
-      timeout = setTimeout(filterFreelancers, 300);
-    });
-    
-    document.getElementById('filter-btn').addEventListener('click', filterFreelancers);
-  }).getFreelancers();
+  document.getElementById('loading').style.display = 'block';
+  document.getElementById('freelancers-container').style.display = 'none';
+  
+  google.script.run
+    .withSuccessHandler(data => {
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('freelancers-container').style.opacity = '1';
+      document.getElementById('freelancers-container').style.display = 'grid';
+      
+      allFreelancers = data;
+      initFilters(data);
+      filterFreelancers();
+      
+      // Configurar evento para el botón de lista negra
+      document.getElementById('toggleBlacklistBtn')?.addEventListener('click', toggleBlacklistFilter);
+      
+      const searchInput = document.getElementById('search-input');
+      searchInput.addEventListener('input', () => {
+        clearTimeout(timeout);
+        timeout = setTimeout(filterFreelancers, 300);
+      });
+      
+      document.getElementById('filter-btn').addEventListener('click', filterFreelancers);
+    })
+    .withFailureHandler(error => {
+      console.error("Error cargando datos:", error);
+      document.getElementById('loading').innerHTML = `
+        <div class="alert alert-danger">
+          Error al cargar. <button onclick="location.reload()">Reintentar</button>
+        </div>
+      `;
+    })
+    .getFreelancers();
 });
 </script>
