@@ -6,10 +6,10 @@ function doGet() {
 
 function getFreelancers() {
   try {
-    const sheet = SpreadsheetApp.openById("1g2qyAjW9NLlaBFMj7YtnTn600ssLQlXkKH1tXsV--Y4").getSheetByName("Freelancers");
+    const sheet = SpreadsheetApp.openById("SHEET_ID").getSheetByName("Freelancers");
     const data = sheet.getDataRange().getValues();
     
-    if (data.length <= 1) return []; // Si solo hay encabezados
+    if (data.length <= 1) return [];
     
     return data.slice(1).map(row => ({
     id: row[0],
@@ -19,7 +19,11 @@ function getFreelancers() {
     titulo: row[9],
     skills: row[12] ? row[12].split(",").map(s => s.trim()) : [],
     premium: row[16] === "SI",
-    cvUrl: row[15] || "#"
+    cvUrl: row[15] || "#",
+    blacklisted: row[20] ==="SI",
+    area: row[10],
+    comentarios: row[18],
+    portafolio: row[19]
   }));
   } catch (e) {
     console.error("Error en getFreelancers:", e);
