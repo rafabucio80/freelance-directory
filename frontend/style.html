@@ -251,4 +251,166 @@ body {
   font-size: 0.8em;
   text-align: center;      /* Centra el texto dentro del badge */
 }
+/* Personalización de tarjetas */
+.freelancer-card {
+  transition: transform 0.3s;
+  border: none;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+.freelancer-card:hover {
+  transform: translateY(-5px);
+}
+
+/* Badges de habilidades */
+.badge {
+  background-color: #0d6efd !important;
+  margin: 2px;
+}
+
+/* Botón "Ver más" */
+.view-more-btn {
+  width: 100%;
+  margin-top: 10px;
+}
+
+/* Modal personalizado */
+.modal-profile-img {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 50%;
+  margin: 0 auto 15px;
+  display: block;
+}
+#freelancers-container {
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  display: grid !important;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+/* Fix para el modal en Apps Script */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1050;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background-color: rgba(0,0,0,0.5);
+}
+
+.modal-dialog {
+  margin: 1.75rem auto;
+  pointer-events: none;
+}
+
+.modal-content {
+  pointer-events: auto;
+}
+/* Estructura de tarjeta */
+.freelancer-card {
+  background: var(--card-bg, #ffffff); /* Color personalizable */
+  border-radius: 10px;
+  padding: 15px;
+  text-align: center;
+  position: relative;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.freelancer-job {
+  font-weight: bold;
+  margin: 5px 0;
+  font-size: 0.9rem;
+  color: var(--text-color, #333);
+}
+
+/* Icono lista negra */
+.blacklist-icon {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  color: red;
+  font-size: 1.5rem;
+}
+
+.blacklisted-card {
+  border: 2px solid #ff0000;
+}
+:root {
+  --card-bg: #ffffff;
+  --text-color: #333333;
+  --primary-color: #0d6efd;
+}
+
+/* Clases para temas */
+.theme-client {
+  --card-bg: #e3f2fd;
+  --text-color: #0a58ca;
+}
+
+.theme-admin {
+  --card-bg: #fff8e1;
+  --text-color: #ff8f00;
+}
+/* Fuerza el ancho del modal */
+#freelancer-modal .modal-dialog {
+  max-width: 90vw; /* O 1000px */
+  margin: 1.75rem auto;
+}
+
+/* Ajuste para pantallas pequeñas */
+@media (max-width: 768px) {
+  #freelancer-modal .modal-dialog {
+    max-width: 95vw;
+  }
+  .modal-body.row {
+    flex-direction: column;
+  }
+}
+/* Asegura que el modal no exceda la pantalla */
+#freelancer-modal .modal-content {
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Mejora el scroll en móviles */
+@media (max-width: 768px) {
+  #freelancer-modal .modal-body {
+    max-height: 60vh;
+  }
+}
+/* Estilo para el botón activo (modo lista negra) */
+#toggleBlacklistBtn.active {
+  background-color: #dc3545;
+  color: white !important;
+}
+
+/* Ajuste para móviles */
+@media (max-width: 768px) {
+  #toggleBlacklistBtn {
+    padding: 0.25rem 0.5rem; /* Más compacto */
+  }
+}
+/* Asegura que los iconos se vean correctamente */
+.btn i {
+  font-size: 0.9em;
+}
+
+/* Estilo para el botón activo de blacklist */
+#toggleBlacklistBtn.active {
+  background-color: var(--bs-danger);
+  color: white !important;
+}
+
+/* Mejora el diseño responsive */
+@media (max-width: 768px) {
+  #toggleBlacklistBtn .fa-ban {
+    margin-right: 0 !important;
+  }
+}
 </style>
